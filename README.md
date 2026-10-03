@@ -1,156 +1,466 @@
 # AI-Driven Energy Optimization in Metal Manufacturing
 
-A reproducible investigation of how a CNC milling machine's electrical power depends on its operating conditions:
-predict it, explain it, find out which windows use far more energy than expected, and search for operating conditions
-that cut energy without missing production requirements.
+An end-to-end CNC milling energy analytics system that combines **physics-guided modeling, machine-learning benchmarks, anomaly detection, constrained optimization, REST APIs, a Streamlit dashboard, and live IoT telemetry through AWS IoT Core**.
 
-> ### Read this first - what is real and what is simulated
-> * **REAL public data** (CFAA milling tests, Zenodo [10.5281/zenodo.14445879](https://doi.org/10.5281/zenodo.14445879), CC BY 4.0,
->   two machining centres, 6 000 rows each) is in `data/raw/`. It has only spindle speed, override, two axis loads and Z-axis power -
->   **no feed, depth of cut, torque, timestamps or run ids** - so it cannot support optimisation, and it turned out to be unreliable
->   for predictive claims (see *Negative results*).
-> * **SYNTHETIC data** (`data/synthetic/`, 27 027 ten-second windows) is produced by a physics-based simulator with hidden factors,
->   noise, glitches and injected inefficiencies. It carries the experiments, anomaly labels and optimisation.
-> * **Every saving quoted here is PREDICTED or SIMULATED.** None is a measured or claimed industrial saving.
+> **Important:** The core machine data and all energy-savings results are **simulated or model-predicted**, not measurements from a production factory. The public real dataset is used mainly for descriptive/reliability analysis because it does not contain the variables needed for the project's optimization problem.
+
+---
+
+## What this project does
+
+The system answers four practical manufacturing questions:
+
+1. **How much power should the CNC machine use?**
+2. **Which operating windows are using substantially more power than expected?**
+3. **What feasible operating point can reduce energy while respecting production and machine constraints?**
+4. **Can the same analytics run continuously on incoming machine telemetry?**
+
+The final deployment connects these pieces into one workflow:
+
+```text
+Simulated CNC machine
+        │
+        │ MQTT / TLS
+        ▼
+AWS IoT Core
+        │
+        │ plant/cnc1/telemetry
+        ▼
+EC2 IoT listener
+        │
+        ▼
+FastAPI inference service
+   ┌────┼───────────┐
+   │    │           │
+   ▼    ▼           ▼
+Predict Anomaly   Optimize
+   │    │           │
+   └────┴──────┬────┘
+                ▼
+        Streamlit dashboard
+```
+
+---
 
 ## Headline results
 
-| Question | Answer (synthetic data unless stated) |
-|---|---|
-| Which model was selected? | A **fitted physics equation** with 21 coefficients, chosen by a rule frozen before the runs - not an ML model. |
-| How good is it? | On 440 unseen jobs: **MAE 0.365 kW, RMSE 1.010 kW, R² 0.931, MAPE 3.3 %** (noise floor: MAE 0.165 kW). |
-| Where does ML fall short? | Beyond the training range of material-removal rate the physics model keeps R² 0.67 (cutting windows); tuned trees go negative (−0.75 to −2.2), MLP/poly-2 with physics features ≈ 0.05. |
-| Did deep learning win? | **No.** On raw features a small MLP (5 seeds) modestly beat tuned LightGBM (val MAE 0.616 vs 0.665) and random forest (0.833); with physics features it tied (0.485 vs 0.481); it never beat the physics equation (0.377). On the real data it lost to trees. |
-| Did K-Means regimes help? | K-Means finds standby and rapid moves perfectly but mixes air-cut and cutting (ARI 0.39). Per-regime models cut a linear model's MAE by 39 %, helped the polynomial slightly and **hurt** boosting. |
-| What drives power? | Depth and width of cut, coolant mode, feed-axis state, spindle speed, material. Fixed and speed-dependent loads are ≈ 60 % of the power of a window in which metal is being cut. |
-| Can residuals flag inefficiency? | Out-of-fold: precision 0.82, recall 0.91 at window level; job level precision 0.96 / recall 0.68. Potential inefficiency, not failure diagnosis. |
-| What can be saved? | **Simulated** mean saving **37 %** (95 % CI 35.8-38.6) of energy over a fixed takt window, model-predicted 39.6 %, by finishing in a third of the time at higher chip load and lower speed. An upper bound inside the simulation: the baseline is sampled, and chatter, finish and fixturing limits are not modelled. |
+### Energy prediction
 
-![Every model: in-distribution vs extrapolation error](results/figures/e11_model_landscape.png)
+On **440 unseen synthetic jobs**, the selected fitted physics equation achieved:
 
-### Final comparison on untouched test data (synthetic)
-Models trained on the train split only; `test` = 440 unseen jobs; `OOD-test` = 150 jobs with removal rates above anything seen in training.
-Test numbers were computed for all models but **not used for any decision** (selection used validation and an OOD-validation band).
+- **MAE:** 0.365 kW
+- **RMSE:** 1.010 kW
+- **R²:** 0.931
+- **MAPE:** 3.3%
 
-| model | test MAE | RMSE | R² | MAPE % | OOD-test MAE (cutting) | OOD-test R² |
-|---|---|---|---|---|---|---|
-| mean (null) | 2.649 | 3.832 | -0.000 | 38.9 | 9.41 | -5.44 |
-| 2-parameter SEC, fitted | 1.774 | 2.435 | 0.596 | 26.1 | 16.90 | -20.45 |
-| handbook physics, zero fit | 1.775 | 2.274 | 0.648 | 18.7 | 2.31 | 0.24 |
-| ridge polynomial-3, raw features | 0.567 | 1.135 | 0.912 | 5.9 | 2.11 | 0.40 |
-| K-Means regimes + ridge poly-2 | 0.582 | 1.147 | 0.910 | 6.0 | 2.20 | 0.40 |
-| decision tree (tuned) | 0.990 | 1.701 | 0.803 | 9.7 | 6.12 | -2.20 |
-| random forest (tuned, raw) | 0.751 | 1.367 | 0.873 | 7.3 | 5.58 | -1.68 |
-| LightGBM (tuned, raw) | 0.624 | 1.193 | 0.903 | 6.1 | 4.21 | -0.75 |
-| LightGBM + physics features | 0.462 | 1.048 | 0.925 | 4.6 | 2.35 | 0.34 |
-| ridge poly-2 + physics features | 0.444 | 1.025 | 0.928 | 4.5 | 2.87 | 0.05 |
-| MLP, 5-seed ensemble, raw | 0.532 | 1.132 | 0.913 | 5.2 | 2.06 | 0.40 |
-| MLP, 5-seed ensemble, physics features | 0.434 | 1.017 | 0.930 | 4.3 | 3.08 | 0.04 |
-| hybrid: physics + LightGBM on residuals | 0.409 | 0.999 | 0.932 | 4.0 | 1.38 | 0.65 |
-| **fitted physics equation (selected)** | **0.367** | 1.013 | 0.930 | **3.3** | **1.29** | **0.66** |
+The selected model is a **21-coefficient fitted physics equation**, not a black-box neural network. The simulator is built from physical functional forms, so the experiment primarily tests whether that structure can be recovered from noisy data rather than claiming that physics models universally outperform ML on real machines.
 
-The selected model refit on train+val: test MAE 0.365, RMSE 1.010, R² 0.931, MAPE 3.29; OOD-test (cutting) MAE 1.292, R² 0.667.
-In-distribution, the best five models are within 0.10 kW MAE of each other; extrapolation is where they separate.
+### Anomaly detection
 
-**Caveat on the physics result.** The simulator is built from the same functional forms (Kienzle cutting force, no-load loss polynomial,
-copper loss, coolant steps), so this shows the structure is *recoverable from noisy data by a fit started from imperfect catalogue
-values* (15 of 21 coefficients land within ±10 %, `results/tables/final_model_param_recovery.csv`). It does **not** show that physics models beat ML on real machines.
+Residual-based detection uses:
 
-## The machine and its physics
-A 3-axis vertical machining centre with an 18.5 kW spindle (cutting speeds and tool-life constants for Al6061, C45 steel, 316L stainless, Ti-6Al-4V).
-
+```text
+residual = measured power - predicted power
 ```
-P_el = P_base + P_amb(T) + P_coolant(mode) + P_conveyor·[cutting]
-     + [ P_cut + P_idle(n)·warmup(t) + r_cu·T² ] / η_inverter          (spindle)
-     + P_servo + b·v_axis + F_feed·v_f                                   (feed axes)
-MRR = a_p·a_e·v_f ,  v_f = f_z·z·n ,  h_m = f_z·sqrt(a_e/D)
-k_c = k_c1.1·h_m^(−m_c) ,  P_cut = k_c·MRR / 6·10⁷ [kW] ,  T = 9550·P_cut/n
-Energy of a window: E = P·Δt   (Δt = 10 s)
+
+with robust, heteroscedastic scaling and thresholds of **z > 3.5** and **excess > 0.4 kW**.
+
+Out-of-fold window-level performance:
+
+- **Precision:** 0.82
+- **Recall:** 0.91
+- **Average precision:** 0.72
+- Captures about **90% of the true excess energy** in flagged windows
+
+The detector is intended to identify **potential inefficiency**, not diagnose a specific hardware failure.
+
+### Energy optimization
+
+A constrained optimizer minimizes energy over a **fixed takt window**, including standby energy, subject to:
+
+- production-time constraint
+- spindle power/torque margin
+- tool-life constraint
+- cutting-speed limits
+- feed/depth/radial-width bounds
+- model trust-region limits on material-removal rate
+
+Across **440 unseen jobs**:
+
+- **37.2% simulated mean energy saving** over the fixed takt window
+- **95% CI: 35.8–38.6%**
+- **39.6% model-predicted saving**
+
+Operation-only savings are higher, but are treated as an upper bound because finishing early does not automatically eliminate standby energy.
+
+> These savings are **predicted/simulated only**. They are not measured industrial savings.
+
+---
+
+## Why the physics-guided approach
+
+The machine model represents electrical power through operating state, spindle behavior, coolant, feed-axis loads, cutting physics, and material-removal rate.
+
+At the machining level:
+
+```text
+MRR = a_p · a_e · v_f
+v_f = f_z · z · n
+h_m = f_z · sqrt(a_e / D)
+k_c = k_c1.1 · h_m^(-m_c)
+P_cut = k_c · MRR / 6·10^7
 ```
-The machine-level special case `P = P₀ + k·MRR` (Gutowski's specific-energy model) explains 64 % of variance alone; the
-remaining structure is speed-dependent idle loss and coolant. Code: `src/physics.py`.
 
-## Data
-| | Real | Synthetic |
+The broader electrical model includes base loads, ambient effects, coolant, spindle losses, copper losses, servo/feed-axis loads, and cutting power.
+
+A simpler machine-level specific-energy form, `P = P₀ + k·MRR`, explains a large fraction of the variance by itself; the full model adds speed- and state-dependent structure.
+
+---
+
+## Synthetic machine and data
+
+The simulator represents a **3-axis vertical machining centre with an 18.5 kW spindle** and covers:
+
+- Al6061
+- C45 steel
+- 316L stainless steel
+- Ti-6Al-4V
+
+The synthetic dataset contains **27,027 ten-second windows** and includes:
+
+- measurement noise
+- sensor glitches/spikes/dropouts
+- workpiece-lot variation
+- tool-life effects
+- cold-start friction
+- injected inefficiencies such as coolant issues, tool wear, bearing friction, auxiliary leaks, and axis drag
+
+### Public real data
+
+The project also includes the CFAA milling tests dataset from Zenodo:
+
+> Tapia Fernandez E., Sastoque Pinilla L., Lopez-Novoa U., *Milling tests in 2 machining centres: Energy consumption data*, Zenodo, 2024. DOI: [10.5281/zenodo.14445879](https://doi.org/10.5281/zenodo.14445879), CC BY 4.0.
+
+The public dataset is useful for descriptive analysis, but it lacks several variables required for the project's main optimization problem and produced unreliable predictive generalization under grouped validation. It is therefore **not used to claim industrial predictive performance**.
+
+---
+
+## Model benchmark
+
+The study compares:
+
+- linear and polynomial regression
+- decision trees
+- random forests
+- XGBoost / LightGBM
+- K-Means regime models
+- MLP ensembles
+- physics-feature models
+- a hybrid physics + residual-ML model
+- the fitted physics equation
+
+A pre-registered protocol freezes the data split, metrics, selection rule, and experimental expectations before model selection.
+
+One important result is that **feature engineering and physical structure mattered more than aggressive hyperparameter tuning** in several experiments.
+
+The final model was selected using validation performance plus an extrapolation/OOD validation band rather than the untouched test set.
+
+---
+
+## Live IoT deployment
+
+The final deployment turns the offline project into a live monitoring demo.
+
+### Architecture
+
+```text
+stream_demo.csv
+      │
+      ▼
+device_simulator.py
+      │
+      │ MQTT over TLS / X.509
+      ▼
+AWS IoT Core
+      │
+      │ plant/cnc1/telemetry
+      ▼
+iot_listener.py
+      │
+      ▼
+FastAPI /live
+      │
+      ▼
+Streamlit live dashboard
+```
+
+### AWS / deployment components
+
+- **AWS IoT Core** — MQTT ingestion
+- **EC2** — listener + FastAPI inference service
+- **S3** — project data/object storage used by the deployment flow
+- **Streamlit** — interactive dashboard
+- **Paho MQTT** — MQTT client implementation
+- **X.509 certificates** — device/client authentication
+
+### Live fault demonstration
+
+The simulator supports fault injection. For example:
+
+```bash
+python deploy/device_simulator.py \
+  --endpoint "<iot-endpoint>" \
+  --cert "<device-certificate>" \
+  --key "<private-key>" \
+  --ca "<amazon-root-ca>" \
+  --interval 1 \
+  --fault-after 40 \
+  --fault-kw 2.5
+```
+
+This creates a simple live demonstration:
+
+```text
+Normal telemetry
+      ↓
+Fault injected after reading 40
+      ↓
+Measured power rises above model expectation
+      ↓
+Residual increases
+      ↓
+Anomaly detector flags windows
+      ↓
+Dashboard raises a live alert
+```
+
+The live API exposes connection and ingestion state through `/live`, including whether the IoT feed is enabled, whether MQTT is connected, the number of readings received, the latest readings, and flagged windows.
+
+---
+
+## Dashboard
+
+The Streamlit dashboard has three main workflows:
+
+### 1. Find energy savings for a job
+
+Enter machining conditions such as material, spindle speed, feed per tooth, axial/radial depth, tool state, coolant, and machine context.
+
+The API returns:
+
+- current predicted energy
+- recommended operating point
+- predicted/simulated energy after optimization
+- estimated saving percentage
+- cycle-time information
+- feasibility status
+
+### 2. Spot wasteful machine windows
+
+Upload a CSV or use the bundled synthetic sample to compare measured and expected power.
+
+The dashboard shows:
+
+- windows checked
+- flagged windows
+- estimated excess energy
+- predicted-vs-measured power
+- flagged windows sorted by excess
+- z-scores and residuals
+
+### 3. Live machine feed
+
+The live tab consumes telemetry through the deployed API and displays:
+
+- connection state
+- readings received
+- flagged readings
+- latest power
+- expected vs measured power over time
+- live anomaly alerts
+
+---
+
+## API
+
+The final FastAPI deployment exposes:
+
+| Endpoint | Method | Purpose |
 |---|---|---|
-| Location | `data/raw/` (md5-verified against Zenodo, see `data/raw/README.md`) | `data/synthetic/` (regenerated bit-for-bit; sha256 in `synthetic_metadata.json`) |
-| Processed | `data/processed/real_*_clean.csv` | `data/processed/synthetic_clean.csv` |
-| Target | `powerDrive_SPINDLE` [kW] | `power_kw` [kW] (energy = power × 10 s) |
-| Noise/outliers | as measured | 1.5 % + 0.04 kW meter noise, 0.7 % glitches (spikes ×1.6-3, dropouts), workpiece-lot scatter, tool-specific life, cold-start friction, about 7 % of jobs carry an injected inefficiency (stuck coolant, worn tool, bearing friction, air/hydraulic leak, axis drag) |
+| `/health` | GET | Service/model health check |
+| `/predict` | POST | Power prediction for input windows |
+| `/anomaly` | POST | Residual/z-score based anomaly detection |
+| `/optimize` | POST | Constrained energy optimization for a job |
+| `/live` | GET | Live MQTT ingestion and anomaly state |
 
-Planning models see **commanded** conditions only. Voltage/current/cos φ are excluded (they reproduce the target: R² 0.95) and so are the drive's load signals (R² 0.94 when added); E01 quantifies both.
+Example health check:
 
-## Method
-* **Splits (synthetic):** by *job*. The highest-MRR jobs form two extrapolation bands never used for training or tuning (`ood_val`, `ood_test`); the rest is 60/20/20 train/val/test. Hyper-parameters are tuned by grouped CV on train only; scalers, K-Means, physics coefficients and network early-stopping are fitted inside `fit(train)`.
-* **Metrics:** MAE, RMSE, R², MAPE (rows ≥ 1 kW), overall and on cutting windows.
-* **Pre-registered protocol:** `experiments/PROTOCOL.md` fixes splits, metrics, the selection rule and all expectations before the runs. `experiments/LOG.md` reports each experiment against them (why / expected / happened / better or worse / learned / next) and ends with a scorecard - several expectations were wrong.
-* **Selection rule:** `score = 0.5·MAE_val/min + 0.5·MAE_oodval/min`, ties within 2 % to the simpler model. MAE because 0.7 % meter glitches put an irreducible floor under RMSE (0.88 kW even for an oracle).
+```bash
+curl http://<ec2-public-ip>:8000/health
+```
 
-## Experiments
-| | | | |
-|---|---|---|---|
-| E00 physics baselines | E01 EDA + leakage audit | E02 linear / polynomial | E03 K-Means regimes |
-| E04 decision tree | E05 random forest | E06 XGBoost / LightGBM | E07 feature engineering, re-tuning |
-| E08 neural network (5 seeds) | E09 SHAP + permutation importance | E10 physics-structured / hybrid | E11 frozen-rule selection |
-| E12 residual anomaly detection | E13 constrained optimisation | E14 real-data reliability probes | |
+Example live-feed check:
 
-![SHAP group importance vs the simulator's true decomposition](results/figures/e09_shap_vs_truth_groups.png)
+```bash
+curl http://<ec2-public-ip>:8000/live
+```
 
-## Anomaly detection (E12)
-`residual = actual − predicted` (out-of-fold), scaled by a robust heteroscedastic MAD, flagged above 3.5 and 0.4 kW excess.
-Window level: precision 0.815, recall 0.906, average precision 0.72 (base rate 4.3 %). Recall by injected cause: stuck high-pressure coolant 0.94,
-air/hydraulic leak 0.92, bearing friction 0.90, excess tool wear 0.82. Flagged windows contain 90 % of the true excess energy. Half of the false positives are
-meter glitches. On extrapolation jobs recall falls to 0.61 - the detector is only as good as the predictor in that region. On the real data the top-flagged rows
-are listed in `results/tables/e12_flagged_windows_real_*.csv` as candidates only (no ground truth).
+---
 
-## Optimisation (E13) - predicted / simulated
-Minimise energy over a fixed takt window (standby included) subject to: same cycle time, spindle power/torque with margin, tool life, cutting-speed window, feed/depth ranges, and MRR inside the model's trust region.
-Current conditions = recorded settings of 440 unseen jobs; recommended conditions verified in a noise-free simulator.
+## Reproducibility
 
-| | simulated mean saving | model-predicted |
-|---|---|---|
-| energy over the takt window (headline) | **37.2 %** (95 % CI 35.8-38.6) | 39.6 % |
-| operation only (ignores idling after finishing early - upper bound) | 58.6 % | 60.8 % |
+### Core research pipeline
 
-All 440 jobs improve, none overloads the simulated spindle. Which model drives the optimiser matters for *honesty* more than for the result:
-simulated savings are 35-38 % for every sensible model, but tree ensembles *predicted* 42-44 % (over-optimistic by 6-9 points), the physics model 39 % (2 points).
-A first version that ignored standby energy reported 58.6 % as the headline; that accounting error is documented in the log.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+bash run_all.sh
+python -m pytest -q
+```
 
-![baseline vs recommended, simulated](results/figures/e13_before_after.png)
+All experiment seeds are fixed. The pipeline regenerates the synthetic data, tables, figures, notebooks, and experiment outputs.
 
-## Negative and surprising results (kept on purpose)
-* **Real-data tree scores are not generalisation.** Random-split R² 0.74-0.85 collapses to −0.13 / −1.43 under input-space-grouped CV; a 1-nearest-neighbour regressor already gets 0.64-0.72 (E14).
-* The best decision tree memorises (train MAE 0.000) and tuned random forests lose to a cubic polynomial on the same features.
-* Robust loss functions (Huber, L1) did **not** help gradient boosting.
-* Letting ML correct the fitted physics equation made it *worse* (MAE 0.377 → 0.419).
-* K-Means did not recover the four physical states; silhouette prefers k=10; per-regime boosting models were worse than one global model.
-* Feature engineering beat hyper-parameter tuning several times over (LightGBM: tuning −4 % MAE, physics features −28 %).
+### Deployment dependencies
 
-## Limitations
-* Synthetic conclusions hold inside the simulator's assumptions; the generator shares functional forms with the winning model.
-* The real dataset lacks the variables needed for the project's main question and is a class-balanced, shuffled subsample with an undocumented label; its scores are descriptive.
-* The optimisation omits chatter stability, surface finish, fixture rigidity, tool-change logistics and scheduling; the baseline is sampled rather than observed. The 37 % figure is an upper bound in the simulator.
-* The 0.4 kW significance threshold of the detector equals the simulator's labelling threshold by design.
-* Window energy is modelled as power × 10 s steady-state; transients and part-level energy accounting are not simulated.
+API:
+
+```bash
+pip install -r deploy/requirements-api.txt
+```
+
+Dashboard:
+
+```bash
+pip install -r deploy/requirements-dashboard.txt
+```
+
+Run the API:
+
+```bash
+uvicorn deploy.api:app --host 0.0.0.0 --port 8000
+```
+
+Run the dashboard:
+
+```bash
+API_URL=http://<ec2-public-ip>:8000 streamlit run deploy/dashboard.py
+```
+
+The IoT listener is started automatically by the FastAPI application when `IOT_ENDPOINT` (or a local broker endpoint) is configured; `deploy/iot_listener.py` is **not** intended to be launched as a standalone application.
+
+Required IoT environment variables:
+
+```text
+IOT_ENDPOINT
+IOT_CERT
+IOT_KEY
+IOT_CA
+```
+
+---
 
 ## Repository layout
-```
-data/raw/            real CFAA data (unchanged) + provenance        data/synthetic/   simulator output + metadata
-data/processed/      cleaned data with split column, prep reports   notebooks/        01 data/EDA, 02 progression, 03 final+anomaly+optimisation (executed)
-src/                 config, physics, generator, features, models, optimiser, harness, plot style
-experiments/         PROTOCOL.md (frozen), LOG.md (results narrative), e00…e14 scripts, results/*.json
-results/             figures/, tables/ (leaderboards, parameter recovery, optimisation per job), models/final_model.joblib
-tests/               split, leakage, physics and feature-consistency tests
+
+```text
+data/raw/            Public real dataset + provenance
+
+data/synthetic/      Synthetic simulator output + metadata
+
+data/processed/      Cleaned/processed datasets
+
+src/
+  physics.py          Machine physics and power model
+  synth_generator.py  Synthetic machine/data generator
+  features.py         Feature engineering
+  models.py           Model definitions/training
+  optimize.py         Constrained optimizer
+  metrics.py          Evaluation utilities
+
+experiments/
+  PROTOCOL.md         Frozen experimental protocol
+  LOG.md              Experiment narrative
+  e00...e14 scripts   Reproducible study stages
+  results/            Experiment JSON summaries
+
+results/
+  figures/            Final plots
+  tables/             Leaderboards, anomaly and optimization tables
+  models/             Final fitted model
+
+notebooks/             Executed analysis notebooks
+tests/                 Sanity and consistency tests
+
+deploy/
+  api.py              FastAPI inference + live-feed service
+  dashboard.py        Streamlit dashboard
+  device_simulator.py MQTT telemetry simulator
+  iot_listener.py     AWS IoT Core / MQTT listener
+  batch_from_s3.py    S3-backed batch flow
+  build_reference.py  Anomaly reference builder
+  call_api.py         API client helpers
+  stream_demo.csv     Live telemetry demo stream
+  sample_windows.csv  Bundled API/dashboard sample
 ```
 
-## Reproduce
-```bash
-python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
-bash run_all.sh        # about 1 hour on 14 cores; all seeds fixed; regenerates every table, figure, notebook
-python -m pytest -q    # fast sanity tests
+---
+
+## Limitations and honest deployment boundary
+
+This project is intentionally explicit about what it does **not** prove.
+
+- The headline energy savings are simulated/model-predicted, not measured factory savings.
+- The winning physics equation is learned from a simulator that shares functional structure with the model family.
+- The public real dataset does not contain enough process variables for the full optimization problem.
+- The optimizer does not model every manufacturing constraint, including chatter stability, surface finish, fixture rigidity, tool-change logistics, and scheduling.
+- The anomaly detector identifies unusual energy behavior; it does not diagnose the physical root cause.
+- The live IoT demonstration uses simulated machine telemetry rather than physical sensors.
+- Real deployment would require plant-specific validation, sensor calibration, machine limits, and operator/production constraints.
+
+### Recommended real-plant validation
+
+Before using the optimizer or anomaly detector on a production machine:
+
+1. collect synchronized power, spindle, feed-axis, depth/width, coolant, tool-state, and machine-state measurements;
+2. validate the predictor on held-out jobs and operating regimes;
+3. calibrate anomaly thresholds against real maintenance/quality events;
+4. verify optimizer recommendations against machine safety, tool life, quality, and production constraints;
+5. run a controlled pilot before using recommendations in closed-loop operation.
+
+---
+
+## Why the project is useful as a digital-manufacturing case study
+
+This project deliberately goes beyond a single ML model:
+
+```text
+Physical process understanding
+        +
+Data engineering
+        +
+Model benchmarking
+        +
+Explainability
+        +
+Anomaly detection
+        +
+Constrained optimization
+        +
+REST API deployment
+        +
+Cloud / IoT integration
+        +
+Business-facing dashboard
 ```
-Versions used are pinned in `requirements.txt` (Python 3.14.6). Fitted models of the experiments are cached in `.cache/` (not shipped).
+
+The result is a prototype **manufacturing digitalization workflow** rather than an isolated prediction notebook.
+
+---
 
 ## Attribution
-Real data: Tapia Fernandez E., Sastoque Pinilla L., Lopez-Novoa U., *Milling tests in 2 machining centres: Energy consumption data*, Zenodo, 2024, doi:10.5281/zenodo.14445879, CC BY 4.0 (redistributed unchanged).
-No code license is included; choose one before redistributing.
+
+Real data:
+
+Tapia Fernandez E., Sastoque Pinilla L., Lopez-Novoa U., *Milling tests in 2 machining centres: Energy consumption data*, Zenodo, 2024, [doi:10.5281/zenodo.14445879](https://doi.org/10.5281/zenodo.14445879), CC BY 4.0.
+
+No code license is included by default. Add an explicit software license before redistributing the repository.
