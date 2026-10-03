@@ -1,0 +1,77 @@
+{
+  "kind": "SYNTHETIC - physics-informed simulation, not industrial data",
+  "seed": 42,
+  "n_jobs": 2500,
+  "n_rows": 27027,
+  "window_seconds": 10.0,
+  "sha256": "f8d297ff3a2ef85fddbb03e69f070fda94de3138a434ee7833fdb03c21827ddd",
+  "machine_true": {
+    "p_rated_kw": 18.5,
+    "t_rated_nm": 118.0,
+    "n_base_rpm": 1500.0,
+    "n_max_rpm": 8000.0,
+    "rapid_mm_min": 24000.0,
+    "p_base_kw": 2.3,
+    "p_amb_kw_per_c": 0.02,
+    "p_servo_kw": 0.3,
+    "b_axis_kw_per_mm_min": 3.75e-05,
+    "p_coolant_kw": {
+      "0": 0.0,
+      "1": 1.5,
+      "2": 4.2
+    },
+    "p_conveyor_kw": 0.35,
+    "idle_l0": 0.18,
+    "idle_l1": 0.00022,
+    "idle_l2": 1.1e-08,
+    "warm_amp": 0.3,
+    "warm_tau_min": 40.0,
+    "r_cu": 0.0668,
+    "eta_inv": 0.965,
+    "p_spindle_off_kw": 0.08,
+    "feed_force_ratio": 0.45
+  },
+  "materials": {
+    "Al6061": {
+      "kc11": 700.0,
+      "mc": 0.25,
+      "vc_min": 200.0,
+      "vc_max": 600.0,
+      "vc_ref": 400.0,
+      "fz_scale": 1.0,
+      "ap_scale": 1.0,
+      "p": 0.3
+    },
+    "C45": {
+      "kc11": 1800.0,
+      "mc": 0.25,
+      "vc_min": 120.0,
+      "vc_max": 260.0,
+      "vc_ref": 180.0,
+      "fz_scale": 1.0,
+      "ap_scale": 1.0,
+      "p": 0.3
+    },
+    "SS316L": {
+      "kc11": 2300.0,
+      "mc": 0.21,
+      "vc_min": 70.0,
+      "vc_max": 160.0,
+      "vc_ref": 110.0,
+      "fz_scale": 0.85,
+      "ap_scale": 0.85,
+      "p": 0.22
+    },
+    "Ti6Al4V": {
+      "kc11": 1500.0,
+      "mc": 0.23,
+      "vc_min": 40.0,
+      "vc_max": 90.0,
+      "vc_ref": 60.0,
+      "fz_scale": 0.75,
+      "ap_scale": 0.7,
+      "p": 0.18
+    }
+  },
+  "note": "Columns prefixed gt_ are ground truth for evaluation only."
+}

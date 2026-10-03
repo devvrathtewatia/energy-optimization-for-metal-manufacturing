@@ -1,0 +1,87 @@
+{
+ "synthetic_top_features": {
+  "axial_depth_mm": 1.5213,
+  "radial_width_mm": 1.2202,
+  "coolant_mode": 0.8795,
+  "axis_speed_mm_min": 0.8007,
+  "spindle_speed_rpm": 0.5379,
+  "mat_C45": 0.3769,
+  "n_flutes": 0.1872,
+  "mat_SS316L": 0.1772,
+  "mat_Al6061": 0.1156,
+  "mat_Ti6Al4V": 0.1012,
+  "feed_per_tooth_mm": 0.0778,
+  "machine_on_min": 0.0759
+ },
+ "group_shares": {
+  "spindle speed / idle loss": {
+   "shap_mean_abs_kw": 0.539,
+   "true_component_mean_abs_dev_kw": 0.8214,
+   "shap_share": 0.1161,
+   "true_share": 0.1712
+  },
+  "cutting load": {
+   "shap_mean_abs_kw": 2.3668,
+   "true_component_mean_abs_dev_kw": 2.5216,
+   "shap_share": 0.5099,
+   "true_share": 0.5255
+  },
+  "coolant": {
+   "shap_mean_abs_kw": 0.8795,
+   "true_component_mean_abs_dev_kw": 1.179,
+   "shap_share": 0.1895,
+   "true_share": 0.2457
+  },
+  "feed axes": {
+   "shap_mean_abs_kw": 0.8007,
+   "true_component_mean_abs_dev_kw": 0.2072,
+   "shap_share": 0.1725,
+   "true_share": 0.0432
+  },
+  "ambient / base load": {
+   "shap_mean_abs_kw": 0.0556,
+   "true_component_mean_abs_dev_kw": 0.0688,
+   "shap_share": 0.012,
+   "true_share": 0.0143
+  }
+ },
+ "permutation_top": {
+  "axial_depth_mm": 1.3755,
+  "radial_width_mm": 1.1752,
+  "coolant_mode": 0.9418,
+  "axis_speed_mm_min": 0.8771,
+  "spindle_speed_rpm": 0.5372,
+  "mat_C45": 0.2017,
+  "n_flutes": 0.1031,
+  "mat_SS316L": 0.0807
+ },
+ "spearman_shap_vs_permutation": 0.9928571428571428,
+ "synthetic_physics_fe_top_features": {
+  "p_cut_handbook_kw": 1.5723,
+  "coolant_mode": 0.629,
+  "mrr_cm3_min": 0.5257,
+  "spindle_speed_rpm": 0.405,
+  "p_coolant_handbook_kw": 0.2338,
+  "life_fraction": 0.2247,
+  "axis_speed_mm_min": 0.1964,
+  "log1p_mrr": 0.1603,
+  "n_sq_1e6": 0.142,
+  "mat_C45": 0.1373,
+  "kienzle_kc_n_mm2": 0.1349,
+  "feed_per_tooth_mm": 0.0782
+ },
+ "ibarmia_shap": {
+  "speed_SPINDLE": 0.967,
+  "power_Z": 0.2238,
+  "load_X": 0.221,
+  "load_Z": 0.189,
+  "override_SPINDLE": 0.0953
+ },
+ "gmtk_shap": {
+  "power_Z": 0.6093,
+  "speed_SPINDLE": 0.347,
+  "load_Z": 0.2527,
+  "load_X": 0.0581,
+  "override_SPINDLE": 0.0382
+ }
+}

@@ -1,0 +1,55 @@
+{
+ "exp_id": "E10",
+ "dataset": "gmtk",
+ "entries": [
+  {
+   "exp_id": "E10c",
+   "dataset": "gmtk",
+   "model": "hybrid_noload_curve+lgbm_residual",
+   "family": "hybrid",
+   "complexity": 7,
+   "params": {
+    "subsample_freq": 1,
+    "subsample": 0.9,
+    "reg_lambda": 1.0,
+    "num_leaves": 31,
+    "n_estimators": 200,
+    "min_child_samples": 20,
+    "learning_rate": 0.1,
+    "colsample_bytree": 0.8
+   },
+   "fit_seconds": 1.13,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.189110158019712,
+      "rmse": 0.5142753191614197,
+      "r2": 0.9407770307116889,
+      "mape": 21.695241686643058,
+      "n": 3120
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.331146870052089,
+      "rmse": 1.0859840892186223,
+      "r2": 0.6874086196232005,
+      "mape": 36.40645874066612,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.34815751225716773,
+      "rmse": 1.1665341748911509,
+      "r2": 0.590656648315967,
+      "mape": 40.61187515868151,
+      "n": 1040
+     }
+    }
+   },
+   "notes": "no-load loss curve + LightGBM on its residuals"
+  }
+ ],
+ "extra": {}
+}

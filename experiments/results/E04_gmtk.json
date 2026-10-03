@@ -1,0 +1,89 @@
+{
+ "exp_id": "E04",
+ "dataset": "gmtk",
+ "entries": [
+  {
+   "exp_id": "E04a",
+   "dataset": "gmtk",
+   "model": "decision_tree_unconstrained",
+   "family": "tree",
+   "complexity": 5,
+   "params": {},
+   "fit_seconds": 0.01,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 4.4480089127610437e-20,
+      "rmse": 5.555561351410191e-19,
+      "r2": 1.0,
+      "mape": 0.0,
+      "n": 3120
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.2564554690454113,
+      "rmse": 1.1885694839521597,
+      "r2": 0.6255625966183938,
+      "mape": 28.76111429858116,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.26719598225213886,
+      "rmse": 1.2434161814519074,
+      "r2": 0.534921955180602,
+      "mape": 30.606617847257038,
+      "n": 1040
+     }
+    }
+   },
+   "notes": "no regularisation on purpose: shows overfitting"
+  },
+  {
+   "exp_id": "E04b",
+   "dataset": "gmtk",
+   "model": "decision_tree_tuned",
+   "family": "tree",
+   "complexity": 5,
+   "params": {
+    "min_samples_leaf": 1,
+    "max_depth": 12,
+    "cv_rmse_train": 1.3199827142518084
+   },
+   "fit_seconds": 0.01,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.08988283946237169,
+      "rmse": 0.1892436727889509,
+      "r2": 0.9919806060327778,
+      "mape": 12.73151649218906,
+      "n": 3120
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.2333049382729954,
+      "rmse": 0.9730568342449545,
+      "r2": 0.7490388545488373,
+      "mape": 26.686571606820692,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.2629844177338819,
+      "rmse": 1.2318763418201106,
+      "r2": 0.5435144466940628,
+      "mape": 30.555919872736226,
+      "n": 1040
+     }
+    }
+   },
+   "notes": ""
+  }
+ ],
+ "extra": {}
+}

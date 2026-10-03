@@ -1,0 +1,58 @@
+{
+ "rule": "score=0.5*MAE_val/min + 0.5*MAE_oodval_engaged/min; ties (<=2% of best) -> lowest complexity",
+ "best_score_model": "physics_parametric_fitted",
+ "winner": "physics_parametric_fitted",
+ "winner_family": "physics",
+ "winner_complexity": 3,
+ "candidates_within_2pct": [
+  "physics_parametric_fitted"
+ ],
+ "final_metrics_trainval_refit": {
+  "test": {
+   "all": {
+    "mae": 0.36481371438764015,
+    "rmse": 1.0096403242346554,
+    "r2": 0.9305758124564641,
+    "mape": 3.288669252879353,
+    "n": 4765
+   },
+   "engaged": {
+    "mae": 0.450674647193073,
+    "rmse": 1.0993709339938356,
+    "r2": 0.9107268352775221,
+    "mape": 3.637200648770025,
+    "n": 3084
+   },
+   "nominal_rows": {
+    "mae": 0.3218113688931616,
+    "rmse": 0.6809875053568125,
+    "r2": 0.9671336749465026,
+    "mape": 3.0639126423113385,
+    "n": 4744
+   }
+  },
+  "ood_test": {
+   "all": {
+    "mae": 0.9504340876528443,
+    "rmse": 1.983885116235053,
+    "r2": 0.9174443108091391,
+    "mape": 5.570466486270645,
+    "n": 1633
+   },
+   "engaged": {
+    "mae": 1.2919717415347642,
+    "rmse": 2.327061049183653,
+    "r2": 0.6673722507639018,
+    "mape": 6.648135020118687,
+    "n": 1073
+   },
+   "nominal_rows": {
+    "mae": 0.8750381879609406,
+    "rmse": 1.3347634127445016,
+    "r2": 0.9606062595129558,
+    "mape": 5.361048491545937,
+    "n": 1627
+   }
+  }
+ }
+}

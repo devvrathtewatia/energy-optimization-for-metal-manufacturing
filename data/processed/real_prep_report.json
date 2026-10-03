@@ -1,0 +1,22 @@
+{
+  "ibarmia": {
+    "rows_raw": 6000,
+    "rows_unique": 5199,
+    "duplicates_removed": 801,
+    "rows_per_split": {
+      "train": 3119,
+      "val": 1040,
+      "test": 1040
+    }
+  },
+  "gmtk": {
+    "rows_raw": 6000,
+    "rows_unique": 5200,
+    "duplicates_removed": 800,
+    "rows_per_split": {
+      "train": 3120,
+      "val": 1040,
+      "test": 1040
+    }
+  }
+}

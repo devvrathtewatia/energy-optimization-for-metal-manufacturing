@@ -1,0 +1,221 @@
+{
+ "in_distribution_oof": {
+  "rows": 23678,
+  "true_inefficient_windows": 1008,
+  "flagged": 1120,
+  "tp": 913,
+  "fp": 207,
+  "fn": 95,
+  "precision": 0.8151785714285714,
+  "recall": 0.9057539682539683,
+  "f1": 0.8580827067669173,
+  "average_precision": 0.7226976842638859,
+  "base_rate": 0.042571163104991976,
+  "fp_glitch": 106,
+  "fp_other": 101,
+  "true_excess_kwh": 6.657353888888888,
+  "flagged_true_excess_kwh": 5.972217777777777,
+  "flagged_residual_kwh": 9.84862263643093,
+  "recall_by_type": {
+   "coolant_stuck_hp": {
+    "windows": 317,
+    "recall": 0.943217665615142,
+    "median_extra_kw": 2.7
+   },
+   "excess_tool_wear": {
+    "windows": 174,
+    "recall": 0.8160919540229885,
+    "median_extra_kw": 2.96295
+   },
+   "spindle_bearing_friction": {
+    "windows": 157,
+    "recall": 0.8980891719745223,
+    "median_extra_kw": 2.3166
+   },
+   "aux_leak": {
+    "windows": 347,
+    "recall": 0.9164265129682997,
+    "median_extra_kw": 1.4487
+   },
+   "axis_drag": {
+    "windows": 13,
+    "recall": 1.0,
+    "median_extra_kw": 1.6087
+   }
+  },
+  "recall_by_true_extra_kw": {
+   "(0.4, 1.0]": 0.967741935483871,
+   "(1.0, 2.0]": 0.9078947368421053,
+   "(2.0, 4.0]": 0.9064748201438849,
+   "(4.0, 100.0]": 0.875
+  }
+ },
+ "extrapolation_ood_jobs": {
+  "rows": 3289,
+  "true_inefficient_windows": 177,
+  "flagged": 155,
+  "tp": 108,
+  "fp": 47,
+  "fn": 69,
+  "precision": 0.6967741935483871,
+  "recall": 0.6101694915254238,
+  "f1": 0.6506024096385541,
+  "average_precision": 0.6656283171190004,
+  "base_rate": 0.053815749467923384,
+  "fp_glitch": 11,
+  "fp_other": 36,
+  "true_excess_kwh": 1.9114419444444446,
+  "flagged_true_excess_kwh": 1.3677200000000003,
+  "flagged_residual_kwh": 2.563565432538936,
+  "recall_by_type": {
+   "coolant_stuck_hp": {
+    "windows": 87,
+    "recall": 0.42528735632183906,
+    "median_extra_kw": 2.7
+   },
+   "excess_tool_wear": {
+    "windows": 31,
+    "recall": 1.0,
+    "median_extra_kw": 9.528
+   },
+   "spindle_bearing_friction": {
+    "windows": 32,
+    "recall": 0.40625,
+    "median_extra_kw": 2.8236
+   },
+   "aux_leak": {
+    "windows": 21,
+    "recall": 1.0,
+    "median_extra_kw": 1.2779
+   },
+   "axis_drag": {
+    "windows": 6,
+    "recall": 1.0,
+    "median_extra_kw": 1.3347
+   }
+  },
+  "recall_by_true_extra_kw": {
+   "(0.4, 1.0]": 1.0,
+   "(1.0, 2.0]": 1.0,
+   "(2.0, 4.0]": 0.3434343434343434,
+   "(4.0, 100.0]": 0.92
+  }
+ },
+ "threshold_sweep": [
+  {
+   "z_threshold": 2.0,
+   "flagged": 1540,
+   "precision": 0.6311688311688312,
+   "recall": 0.9642857142857143
+  },
+  {
+   "z_threshold": 2.5,
+   "flagged": 1365,
+   "precision": 0.7025641025641025,
+   "recall": 0.9513888888888888
+  },
+  {
+   "z_threshold": 3.0,
+   "flagged": 1209,
+   "precision": 0.7766749379652605,
+   "recall": 0.9315476190476191
+  },
+  {
+   "z_threshold": 3.5,
+   "flagged": 1120,
+   "precision": 0.8151785714285714,
+   "recall": 0.9057539682539683
+  },
+  {
+   "z_threshold": 4.0,
+   "flagged": 1041,
+   "precision": 0.8376560999039385,
+   "recall": 0.8650793650793651
+  },
+  {
+   "z_threshold": 5.0,
+   "flagged": 886,
+   "precision": 0.8521444695259593,
+   "recall": 0.7490079365079365
+  },
+  {
+   "z_threshold": 6.0,
+   "flagged": 796,
+   "precision": 0.8542713567839196,
+   "recall": 0.6746031746031746
+  },
+  {
+   "z_threshold": 8.0,
+   "flagged": 674,
+   "precision": 0.8427299703264095,
+   "recall": 0.5634920634920635
+  }
+ ],
+ "job_level": {
+  "jobs": 2200,
+  "anomalous_jobs": 141,
+  "flagged_jobs": 100,
+  "precision": 0.96,
+  "recall": 0.6808510638297872
+ },
+ "real": {
+  "ibarmia": {
+   "model": "lightgbm_tuned",
+   "rows": 5199,
+   "flagged": 148,
+   "flagged_pct": 2.846701288709367,
+   "excess_kw_flagged_mean": 2.9074943387902916,
+   "profile": {
+    "speed_SPINDLE": {
+     "flagged_median": 2758.205,
+     "all_median": 2671.639
+    },
+    "override_SPINDLE": {
+     "flagged_median": 100.0,
+     "all_median": 100.0
+    },
+    "load_X": {
+     "flagged_median": 1.412,
+     "all_median": 1.381
+    },
+    "load_Z": {
+     "flagged_median": 7.226,
+     "all_median": 10.413
+    },
+    "power_Z": {
+     "flagged_median": 43.724,
+     "all_median": 6.591
+    }
+   }
+  },
+  "gmtk": {
+   "model": "random_forest_tuned",
+   "rows": 5200,
+   "flagged": 132,
+   "flagged_pct": 2.5384615384615383,
+   "excess_kw_flagged_mean": 2.690486671237068,
+   "profile": {
+    "speed_SPINDLE": {
+     "flagged_median": -0.029,
+     "all_median": -0.093
+    },
+    "override_SPINDLE": {
+     "flagged_median": 99.902,
+     "all_median": 100.0
+    },
+    "load_X": {
+     "flagged_median": 17.358,
+     "all_median": 17.353
+    },
+    "load_Z": {
+     "flagged_median": 14.955,
+     "all_median": 13.495
+    },
+    "power_Z": {
+     "flagged_median": -59.228,
+     "all_median": -29.604
+    }
+   }
+  }
+ }
+}

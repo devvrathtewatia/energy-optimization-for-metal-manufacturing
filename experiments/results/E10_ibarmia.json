@@ -1,0 +1,55 @@
+{
+ "exp_id": "E10",
+ "dataset": "ibarmia",
+ "entries": [
+  {
+   "exp_id": "E10c",
+   "dataset": "ibarmia",
+   "model": "hybrid_noload_curve+lgbm_residual",
+   "family": "hybrid",
+   "complexity": 7,
+   "params": {
+    "subsample_freq": 1,
+    "subsample": 0.9,
+    "reg_lambda": 1.0,
+    "num_leaves": 31,
+    "n_estimators": 200,
+    "min_child_samples": 20,
+    "learning_rate": 0.1,
+    "colsample_bytree": 0.8
+   },
+   "fit_seconds": 1.02,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.31609028787155113,
+      "rmse": 0.5145334900550713,
+      "r2": 0.9473229258927255,
+      "mape": 23.139208844331225,
+      "n": 3119
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.6293587586410093,
+      "rmse": 1.1686677858100627,
+      "r2": 0.7248001809716692,
+      "mape": 43.249974508644094,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.5596230635365992,
+      "rmse": 0.923999981051445,
+      "r2": 0.7773430267571213,
+      "mape": 40.44155978246467,
+      "n": 1040
+     }
+    }
+   },
+   "notes": "no-load loss curve + LightGBM on its residuals"
+  }
+ ],
+ "extra": {}
+}

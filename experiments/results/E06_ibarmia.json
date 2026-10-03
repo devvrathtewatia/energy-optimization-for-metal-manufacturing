@@ -1,0 +1,280 @@
+{
+ "exp_id": "E06",
+ "dataset": "ibarmia",
+ "entries": [
+  {
+   "exp_id": "E06a",
+   "dataset": "ibarmia",
+   "model": "xgboost_default",
+   "family": "boosting",
+   "complexity": 6,
+   "params": {},
+   "fit_seconds": 0.13,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.14789309188339142,
+      "rmse": 0.22961989949860087,
+      "r2": 0.9895090843629532,
+      "mape": 10.792088433803414,
+      "n": 3119
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.5602881997213671,
+      "rmse": 1.2008556153574532,
+      "r2": 0.7094321335120071,
+      "mape": 38.318138348140515,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.4687475952505361,
+      "rmse": 0.8485912083257755,
+      "r2": 0.8122026617557424,
+      "mape": 35.85075337662923,
+      "n": 1040
+     }
+    }
+   },
+   "notes": ""
+  },
+  {
+   "exp_id": "E06b",
+   "dataset": "ibarmia",
+   "model": "xgboost_tuned",
+   "family": "boosting",
+   "complexity": 6,
+   "params": {
+    "subsample": 1.0,
+    "reg_lambda": 1.0,
+    "n_estimators": 800,
+    "min_child_weight": 5,
+    "max_depth": 7,
+    "learning_rate": 0.1,
+    "colsample_bytree": 0.6,
+    "cv_rmse_train": 1.0564111149721744
+   },
+   "fit_seconds": 0.93,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.06593696528095386,
+      "rmse": 0.10573153245648612,
+      "r2": 0.9977756485706758,
+      "mape": 4.808744666956182,
+      "n": 3119
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.5408828374206096,
+      "rmse": 1.0451820626303832,
+      "r2": 0.7798848709668728,
+      "mape": 39.50089368774474,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.48774946412557907,
+      "rmse": 0.8266632831645753,
+      "r2": 0.8217827764321552,
+      "mape": 36.70608571403123,
+      "n": 1040
+     }
+    }
+   },
+   "notes": ""
+  },
+  {
+   "exp_id": "E06c",
+   "dataset": "ibarmia",
+   "model": "lightgbm_default",
+   "family": "boosting",
+   "complexity": 6,
+   "params": {},
+   "fit_seconds": 0.25,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.4102037377105135,
+      "rmse": 0.6914838354219509,
+      "r2": 0.9048610368545611,
+      "mape": 30.25586093573398,
+      "n": 3119
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.6315355962964708,
+      "rmse": 1.2174429728048308,
+      "r2": 0.7013494955930426,
+      "mape": 43.81159419238257,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.5816735084297582,
+      "rmse": 0.9901967598206599,
+      "r2": 0.7442972621125065,
+      "mape": 43.3147489909657,
+      "n": 1040
+     }
+    }
+   },
+   "notes": ""
+  },
+  {
+   "exp_id": "E06d",
+   "dataset": "ibarmia",
+   "model": "lightgbm_tuned",
+   "family": "boosting",
+   "complexity": 6,
+   "params": {
+    "subsample_freq": 1,
+    "subsample": 1.0,
+    "reg_lambda": 1.0,
+    "num_leaves": 127,
+    "n_estimators": 200,
+    "min_child_samples": 5,
+    "learning_rate": 0.05,
+    "colsample_bytree": 1.0,
+    "cv_rmse_train": 1.0334778609477377
+   },
+   "fit_seconds": 2.17,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.10486383153334353,
+      "rmse": 0.1753030402025549,
+      "r2": 0.9938853268782313,
+      "mape": 7.018747214155123,
+      "n": 3119
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.5054025329925856,
+      "rmse": 1.1282421326122147,
+      "r2": 0.743509888868944,
+      "mape": 34.507941069950085,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.4631563239032612,
+      "rmse": 0.9143596415246935,
+      "r2": 0.7819648696514547,
+      "mape": 33.91813631837986,
+      "n": 1040
+     }
+    }
+   },
+   "notes": ""
+  },
+  {
+   "exp_id": "E06e",
+   "dataset": "ibarmia",
+   "model": "lightgbm_tuned_huber_loss",
+   "family": "boosting",
+   "complexity": 6,
+   "params": {
+    "subsample_freq": 1,
+    "subsample": 1.0,
+    "reg_lambda": 1.0,
+    "num_leaves": 127,
+    "n_estimators": 200,
+    "min_child_samples": 5,
+    "learning_rate": 0.05,
+    "colsample_bytree": 1.0,
+    "objective": "huber"
+   },
+   "fit_seconds": 2.19,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.22579111619251188,
+      "rmse": 1.0105647928960342,
+      "r2": 0.7968004802729522,
+      "mape": 8.348591481192909,
+      "n": 3119
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.5326933095980659,
+      "rmse": 1.4126173022079207,
+      "r2": 0.5979176210639356,
+      "mape": 30.904122938996213,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.4808756183350594,
+      "rmse": 1.1275719045575738,
+      "r2": 0.668425694481516,
+      "mape": 29.233890513946132,
+      "n": 1040
+     }
+    }
+   },
+   "notes": "same hyper-parameters as E06d, robust loss"
+  },
+  {
+   "exp_id": "E06e",
+   "dataset": "ibarmia",
+   "model": "lightgbm_tuned_l1_loss",
+   "family": "boosting",
+   "complexity": 6,
+   "params": {
+    "subsample_freq": 1,
+    "subsample": 1.0,
+    "reg_lambda": 1.0,
+    "num_leaves": 127,
+    "n_estimators": 200,
+    "min_child_samples": 5,
+    "learning_rate": 0.05,
+    "colsample_bytree": 1.0,
+    "objective": "l1"
+   },
+   "fit_seconds": 2.25,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.22120418257462499,
+      "rmse": 0.8258831232629888,
+      "r2": 0.8642838495238175,
+      "mape": 10.052237500433423,
+      "n": 3119
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.5734082682117356,
+      "rmse": 1.414291718817672,
+      "r2": 0.5969638561253234,
+      "mape": 35.29855121242688,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.523302066609624,
+      "rmse": 1.1789820826120183,
+      "r2": 0.6375010220135022,
+      "mape": 32.81137919661919,
+      "n": 1040
+     }
+    }
+   },
+   "notes": "same hyper-parameters as E06d, robust loss"
+  }
+ ],
+ "extra": {}
+}

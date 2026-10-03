@@ -1,0 +1,244 @@
+{
+ "synthetic_summary": {
+  "rows": 26967,
+  "jobs": 2500,
+  "power_kw": {
+   "count": 26967.0,
+   "mean": 9.697,
+   "std": 4.892,
+   "min": 2.47,
+   "25%": 6.81,
+   "50%": 8.52,
+   "75%": 11.09,
+   "max": 61.23
+  },
+  "share_by_state": {
+   "cutting": 0.647,
+   "aircut": 0.139,
+   "rapid": 0.139,
+   "standby": 0.075
+  },
+  "mean_power_by_state": {
+   "aircut": 6.64,
+   "cutting": 11.62,
+   "rapid": 7.5,
+   "standby": 2.8
+  },
+  "inefficient_share": 0.043942596506841694,
+  "glitch_share": 0.004486965550487633,
+  "anomaly_jobs": {
+   "none": 2334,
+   "aux_leak": 43,
+   "coolant_stuck_hp": 42,
+   "excess_tool_wear": 40,
+   "spindle_bearing_friction": 28,
+   "axis_drag": 13
+  },
+  "cutting_power_decomposition_kw": {
+   "gt_p_base": 2.4,
+   "gt_p_coolant": 2.45,
+   "gt_p_idle": 1.71,
+   "gt_p_cut": 4.62,
+   "gt_p_axes": 0.38
+  },
+  "oracle_floor_val": {
+   "mae": 0.16478551854974707,
+   "rmse": 0.8756223788263029,
+   "r2": 0.9543189430985244,
+   "mape": 1.5650456633230476,
+   "n": 4744
+  },
+  "oracle_floor_val_nominal_rows": {
+   "mae": 0.11409428087269644,
+   "rmse": 0.15384767549371325,
+   "r2": 0.9985135861887501,
+   "mape": 1.3069320562905762,
+   "n": 4721
+  }
+ },
+ "leakage_audit_synthetic_val": {
+  "identity_sqrt3*V*I*cosphi (no fit)": {
+   "mae": 0.17100292289687527,
+   "rmse": 0.8776583015122632,
+   "r2": 0.9541062687225257,
+   "mape": 1.6314868384312133,
+   "n": 4744
+  },
+  "linear: commanded features only (planning set)": {
+   "mae": 1.4921268726396657,
+   "rmse": 2.193601035372529,
+   "r2": 0.7133065815021677,
+   "mape": 17.413882038432618,
+   "n": 4744
+  },
+  "linear: commanded + drive load signals": {
+   "mae": 0.3911575136002637,
+   "rmse": 0.9955799019225379,
+   "r2": 0.940945271140208,
+   "mape": 4.464000798770469,
+   "n": 4744
+  },
+  "linear: commanded + V, I, cos(phi)  [LEAKAGE]": {
+   "mae": 0.22111443895354851,
+   "rmse": 0.8866613183874602,
+   "r2": 0.9531598839013639,
+   "mape": 2.3911224159160813,
+   "n": 4744
+  },
+  "linear: V, I, cos(phi) only  [LEAKAGE]": {
+   "mae": 0.17962210234507842,
+   "rmse": 0.8762924070357173,
+   "r2": 0.954249005856167,
+   "mape": 1.7398226904005574,
+   "n": 4744
+  }
+ },
+ "real": {
+  "ibarmia": {
+   "rows_raw": 6000,
+   "duplicates": 801,
+   "describe": {
+    "load_X": {
+     "mean": 1.924,
+     "std": 2.825,
+     "min": -0.148,
+     "max": 44.144
+    },
+    "load_Z": {
+     "mean": 9.752,
+     "std": 5.208,
+     "min": -0.073,
+     "max": 33.423
+    },
+    "power_Z": {
+     "mean": 624.587,
+     "std": 1618.989,
+     "min": -1992.448,
+     "max": 9171.263
+    },
+    "speed_SPINDLE": {
+     "mean": 2108.641,
+     "std": 1287.69,
+     "min": 7.854,
+     "max": 5000.61
+    },
+    "override_SPINDLE": {
+     "mean": 100.153,
+     "std": 2.356,
+     "min": 50.0,
+     "max": 110.112
+    },
+    "powerDrive_SPINDLE": {
+     "mean": 1.445,
+     "std": 2.137,
+     "min": -0.106,
+     "max": 19.249
+    }
+   },
+   "label_vs_power": {
+    "High": {
+     "min": -0.082,
+     "max": 19.249,
+     "mean": 2.448,
+     "count": 2005
+    },
+    "Low": {
+     "min": -0.106,
+     "max": 3.112,
+     "mean": 0.225,
+     "count": 2007
+    },
+    "Medium": {
+     "min": -0.088,
+     "max": 14.142,
+     "mean": 1.666,
+     "count": 1988
+    }
+   },
+   "r2_of_class_means": 0.1862075928798278,
+   "corr_with_power": {
+    "load_X": 0.063,
+    "load_Z": -0.12,
+    "power_Z": 0.207,
+    "speed_SPINDLE": 0.463,
+    "override_SPINDLE": 0.079,
+    "powerDrive_SPINDLE": 1.0
+   },
+   "frac_rows_spindle_abs_speed_gt_100rpm": 0.9976666666666667,
+   "frac_rows_power_lt_0": 0.017333333333333333
+  },
+  "gmtk": {
+   "rows_raw": 6000,
+   "duplicates": 800,
+   "describe": {
+    "load_X": {
+     "mean": 17.368,
+     "std": 0.997,
+     "min": 1.306,
+     "max": 34.338
+    },
+    "load_Z": {
+     "mean": 14.665,
+     "std": 7.644,
+     "min": 0.638,
+     "max": 98.792
+    },
+    "power_Z": {
+     "mean": 145.456,
+     "std": 1949.392,
+     "min": -28016.111,
+     "max": 30740.736
+    },
+    "speed_SPINDLE": {
+     "mean": -2.539,
+     "std": 13.903,
+     "min": -120.048,
+     "max": 12.129
+    },
+    "override_SPINDLE": {
+     "mean": 82.214,
+     "std": 32.952,
+     "min": 4.858,
+     "max": 120.126
+    },
+    "powerDrive_SPINDLE": {
+     "mean": 0.723,
+     "std": 1.922,
+     "min": -0.156,
+     "max": 30.824
+    }
+   },
+   "label_vs_power": {
+    "High": {
+     "min": -0.09,
+     "max": 30.824,
+     "mean": 1.6,
+     "count": 2000
+    },
+    "Low": {
+     "min": -0.156,
+     "max": 10.571,
+     "mean": 0.366,
+     "count": 1984
+    },
+    "Medium": {
+     "min": -0.107,
+     "max": 2.549,
+     "mean": 0.205,
+     "count": 2016
+    }
+   },
+   "r2_of_class_means": 0.10533375059977335,
+   "corr_with_power": {
+    "load_X": 0.068,
+    "load_Z": 0.426,
+    "power_Z": 0.265,
+    "speed_SPINDLE": -0.369,
+    "override_SPINDLE": -0.032,
+    "powerDrive_SPINDLE": 1.0
+   },
+   "frac_rows_spindle_abs_speed_gt_100rpm": 0.004333333333333333,
+   "frac_rows_power_lt_0": 0.05516666666666667
+  }
+ }
+}

@@ -1,0 +1,89 @@
+{
+ "exp_id": "E04",
+ "dataset": "ibarmia",
+ "entries": [
+  {
+   "exp_id": "E04a",
+   "dataset": "ibarmia",
+   "model": "decision_tree_unconstrained",
+   "family": "tree",
+   "complexity": 5,
+   "params": {},
+   "fit_seconds": 0.01,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.0,
+      "rmse": 0.0,
+      "r2": 1.0,
+      "mape": 0.0,
+      "n": 3119
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.544778539394497,
+      "rmse": 1.470608425271814,
+      "r2": 0.5642272214648423,
+      "mape": 38.35436990539065,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.4565765505184379,
+      "rmse": 1.1702182682189857,
+      "r2": 0.6428701728470958,
+      "mape": 33.295242030211995,
+      "n": 1040
+     }
+    }
+   },
+   "notes": "no regularisation on purpose: shows overfitting"
+  },
+  {
+   "exp_id": "E04b",
+   "dataset": "ibarmia",
+   "model": "decision_tree_tuned",
+   "family": "tree",
+   "complexity": 5,
+   "params": {
+    "min_samples_leaf": 1,
+    "max_depth": 16,
+    "cv_rmse_train": 1.4697726249723528
+   },
+   "fit_seconds": 0.01,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.24546721058146617,
+      "rmse": 0.5480464570190066,
+      "r2": 0.9402374529537891,
+      "mape": 20.527775428821943,
+      "n": 3119
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.5616848816464669,
+      "rmse": 1.4038265746700231,
+      "r2": 0.6029063731137188,
+      "mape": 37.91147273701617,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.47679719683766936,
+      "rmse": 1.0128566667372698,
+      "r2": 0.7324602244035301,
+      "mape": 35.032876184194926,
+      "n": 1040
+     }
+    }
+   },
+   "notes": ""
+  }
+ ],
+ "extra": {}
+}

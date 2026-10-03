@@ -1,0 +1,22 @@
+{
+  "rows_raw": 27027,
+  "rows_clean": 26967,
+  "dropped_dropouts": 60,
+  "mrr_q88": 197.001896,
+  "mrr_q94": 244.616934,
+  "rows_per_split": {
+    "train": 14169,
+    "test": 4765,
+    "val": 4744,
+    "ood_val": 1656,
+    "ood_test": 1633
+  },
+  "jobs_per_split": {
+    "train": 1320,
+    "val": 440,
+    "test": 440,
+    "ood_test": 150,
+    "ood_val": 150
+  },
+  "max_train_mrr": 196.4372
+}

@@ -1,0 +1,85 @@
+{
+ "exp_id": "E00",
+ "dataset": "gmtk",
+ "entries": [
+  {
+   "exp_id": "E00a",
+   "dataset": "gmtk",
+   "model": "mean",
+   "family": "null",
+   "complexity": 0,
+   "params": {},
+   "fit_seconds": 0.0,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.8950769678233046,
+      "rmse": 2.1132486167467355,
+      "r2": 0.0,
+      "mape": 47.31737127877537,
+      "n": 3120
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.9060452562334833,
+      "rmse": 1.9423900244210466,
+      "r2": -6.795836490214313e-06,
+      "mape": 47.98173127576015,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.8270513881556197,
+      "rmse": 1.8240534734164,
+      "r2": -0.0008475721200913444,
+      "mape": 45.305435863208245,
+      "n": 1040
+     }
+    }
+   },
+   "notes": "null baseline"
+  },
+  {
+   "exp_id": "E00b",
+   "dataset": "gmtk",
+   "model": "noload_loss_curve_c0+c1|n|+c2n^2",
+   "family": "physics",
+   "complexity": 1,
+   "params": {},
+   "fit_seconds": 0.0,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.6362990012983257,
+      "rmse": 1.8084302000247068,
+      "r2": 0.26767760541005126,
+      "mape": 52.54286098326635,
+      "n": 3120
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.6186267892201739,
+      "rmse": 1.7126984631200903,
+      "r2": 0.2225152318358089,
+      "mape": 49.65153661644252,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.5999977392423056,
+      "rmse": 1.679199641351097,
+      "r2": 0.1518015510335562,
+      "mape": 54.22319186529512,
+      "n": 1040
+     }
+    }
+   },
+   "notes": "physics baseline for the real data: spindle no-load loss curve in speed only"
+  }
+ ],
+ "extra": {}
+}

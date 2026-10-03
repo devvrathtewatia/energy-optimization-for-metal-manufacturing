@@ -1,0 +1,6 @@
+,shap_mean_abs_kw,true_component_mean_abs_dev_kw,shap_share,true_share
+spindle speed / idle loss,0.539,0.8214,0.1161,0.1712
+cutting load,2.3668,2.5216,0.5099,0.5255
+coolant,0.8795,1.179,0.1895,0.2457
+feed axes,0.8007,0.2072,0.1725,0.0432
+ambient / base load,0.0556,0.0688,0.012,0.0143

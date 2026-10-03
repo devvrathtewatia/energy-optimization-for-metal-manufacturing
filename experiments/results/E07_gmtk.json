@@ -1,0 +1,221 @@
+{
+ "exp_id": "E07",
+ "dataset": "gmtk",
+ "entries": [
+  {
+   "exp_id": "E07a",
+   "dataset": "gmtk",
+   "model": "ridge_linear__real_fe",
+   "family": "linear",
+   "complexity": 2,
+   "params": {
+    "ridge__alpha": 100.0,
+    "cv_rmse_train": 1.2540878497165309
+   },
+   "fit_seconds": 0.0,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.3409427125470548,
+      "rmse": 1.2492142637122874,
+      "r2": 0.650559947369215,
+      "mape": 31.42841242787624,
+      "n": 3120
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.33291152317818373,
+      "rmse": 1.1132628560114826,
+      "r2": 0.6715074597585754,
+      "mape": 30.615052127090387,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.31400291675430164,
+      "rmse": 1.0459352437463507,
+      "r2": 0.6709193073640967,
+      "mape": 33.62315250488649,
+      "n": 1040
+     }
+    }
+   },
+   "notes": ""
+  },
+  {
+   "exp_id": "E07a",
+   "dataset": "gmtk",
+   "model": "ridge_poly2__real_fe",
+   "family": "linear",
+   "complexity": 3,
+   "params": {
+    "ridge__alpha": 1.0,
+    "cv_rmse_train": 1.1776232679626708
+   },
+   "fit_seconds": 0.0,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.2906532568513101,
+      "rmse": 1.0134127738826024,
+      "r2": 0.7700298006775654,
+      "mape": 28.913172406597788,
+      "n": 3120
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.3173417295917181,
+      "rmse": 0.9792701212701046,
+      "r2": 0.7458236838118121,
+      "mape": 30.340009112434842,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.31596843455778256,
+      "rmse": 0.9947151374786218,
+      "r2": 0.7023607082632295,
+      "mape": 33.18219792992851,
+      "n": 1040
+     }
+    }
+   },
+   "notes": ""
+  },
+  {
+   "exp_id": "E07b",
+   "dataset": "gmtk",
+   "model": "random_forest_tuned_params__real_fe",
+   "family": "forest",
+   "complexity": 6,
+   "params": {
+    "min_samples_leaf": 1,
+    "max_features": 0.5,
+    "max_depth": 16
+   },
+   "fit_seconds": 0.18,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.10377793136810214,
+      "rmse": 0.3070094126797522,
+      "r2": 0.9788941817036563,
+      "mape": 11.550918621510366,
+      "n": 3120
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.2205400159803263,
+      "rmse": 0.8373335161288225,
+      "r2": 0.8141652089333897,
+      "mape": 24.26354739147707,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.2496122694377104,
+      "rmse": 1.0354916462357493,
+      "r2": 0.6774581983241181,
+      "mape": 27.809689882824788,
+      "n": 1040
+     }
+    }
+   },
+   "notes": "hyper-parameters tuned on the raw commanded features (E05b), reused"
+  },
+  {
+   "exp_id": "E07c",
+   "dataset": "gmtk",
+   "model": "lightgbm_default__real_fe",
+   "family": "boosting",
+   "complexity": 6,
+   "params": {},
+   "fit_seconds": 0.27,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.21578045328323395,
+      "rmse": 0.6828477730297883,
+      "r2": 0.8955889151901583,
+      "mape": 23.83503032258124,
+      "n": 3120
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.29845609214650126,
+      "rmse": 1.0717541075510273,
+      "r2": 0.6955469096637892,
+      "mape": 33.7474225697605,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.3280419409669072,
+      "rmse": 0.9932132699136477,
+      "r2": 0.7032588092763501,
+      "mape": 40.439232633963535,
+      "n": 1040
+     }
+    }
+   },
+   "notes": ""
+  },
+  {
+   "exp_id": "E07c",
+   "dataset": "gmtk",
+   "model": "lightgbm_tuned_params__real_fe",
+   "family": "boosting",
+   "complexity": 6,
+   "params": {
+    "subsample_freq": 1,
+    "subsample": 1.0,
+    "reg_lambda": 0.0,
+    "num_leaves": 63,
+    "n_estimators": 400,
+    "min_child_samples": 5,
+    "learning_rate": 0.05,
+    "colsample_bytree": 1.0
+   },
+   "fit_seconds": 2.19,
+   "metrics": {
+    "train": {
+     "all": {
+      "mae": 0.046733640145373574,
+      "rmse": 0.11157812178541589,
+      "r2": 0.9972122302169858,
+      "mape": 5.110796571281243,
+      "n": 3120
+     }
+    },
+    "val": {
+     "all": {
+      "mae": 0.23675042453310433,
+      "rmse": 0.8703279356107779,
+      "r2": 0.7992313398462525,
+      "mape": 27.96482358514629,
+      "n": 1040
+     }
+    },
+    "test": {
+     "all": {
+      "mae": 0.26913079525787975,
+      "rmse": 1.0838321934450565,
+      "r2": 0.6466403939505297,
+      "mape": 31.071570185696462,
+      "n": 1040
+     }
+    }
+   },
+   "notes": "hyper-parameters tuned on the raw commanded features (E06d), reused"
+  }
+ ],
+ "extra": {}
+}
