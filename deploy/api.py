@@ -4,7 +4,11 @@ Run locally:   uvicorn deploy.api:app --port 8000      (from the repo root)
 Run on EC2:    same command, with --host 0.0.0.0
 """
 import json
+import logging
+import os
 import sys
+from collections import deque
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import numpy as np
@@ -16,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from src.models import PhysParamModel  # noqa: E402  (the model class from this repo)
 from src import optimize as O  # noqa: E402
+from deploy.iot_listener import Listener  # noqa: E402
 
 # Rebuild the fitted model from the saved coefficients (no pickle, so no version problems).
 _saved = json.loads((Path(__file__).parent / "model_params.json").read_text())
@@ -25,7 +30,22 @@ model.theta_ = np.array([_saved["params"][n] for n in PhysParamModel.NAMES])
 _ref = json.loads((Path(__file__).parent / "reference.json").read_text())
 _edges, _sigma = np.array(_ref["bin_edges"]), np.array(_ref["sigma"])
 
-app = FastAPI(title="CNC milling energy model (simulated data)")
+LIVE = deque(maxlen=500)          # most recent live readings, newest last
+_listener = None
+
+
+@asynccontextmanager
+async def lifespan(app):
+    """Start listening to the machine feed only if it is configured (environment variables)."""
+    global _listener
+    if os.environ.get("IOT_ENDPOINT") or os.environ.get("IOT_LOCAL_HOST"):
+        _listener = Listener(_on_reading, endpoint=os.environ.get("IOT_ENDPOINT"), cert=os.environ.get("IOT_CERT"),
+                             key=os.environ.get("IOT_KEY"), ca=os.environ.get("IOT_CA"),
+                             local_host=os.environ.get("IOT_LOCAL_HOST")).start()
+    yield
+
+
+app = FastAPI(title="CNC milling energy model (simulated data)", lifespan=lifespan)
 
 
 class Window(BaseModel):
@@ -45,6 +65,15 @@ class Window(BaseModel):
 
 class Request(BaseModel):
     windows: list[Window]
+
+
+def _score(df):
+    """Predicted power, excess over prediction, robust z-score and anomaly flag for each row (needs a power_kw column)."""
+    pred = model.predict(df)
+    resid = df["power_kw"].to_numpy() - pred
+    z = resid / np.maximum(_sigma[np.digitize(pred, _edges)], 1e-3)
+    flag = (z > _ref["z_threshold"]) & (resid > _ref["min_excess_kw"])
+    return pred, resid, z, flag
 
 
 @app.get("/health")
@@ -71,10 +100,7 @@ class AnomalyRequest(BaseModel):
 def anomaly(req: AnomalyRequest):
     """Flag windows that use clearly more power than the model expects (same rule as experiments/e12)."""
     df = pd.DataFrame([w.model_dump() for w in req.windows])
-    pred = model.predict(df)
-    resid = df["power_kw"].to_numpy() - pred
-    z = resid / np.maximum(_sigma[np.digitize(pred, _edges)], 1e-3)
-    flag = (z > _ref["z_threshold"]) & (resid > _ref["min_excess_kw"])
+    pred, resid, z, flag = _score(df)
     return {
         "predicted_power_kw": [round(float(v), 3) for v in pred],
         "excess_kw": [round(float(v), 3) for v in resid],
@@ -120,4 +146,31 @@ def optimize(job: Job):
         "cycle_time_min": {"current": round(r["t_op_base_min"], 1), "recommended": round(r["t_op_opt_min"], 1)},
         "feasible_solution_found": bool(r["feasible_found"]),
         "note": "Predicted/simulated values only, not measured on a real machine.",
+    }
+
+
+def _on_reading(payload):
+    """Called for every machine reading that arrives: score it and keep it for the dashboard."""
+    w = MeasuredWindow.model_validate(payload)
+    df = pd.DataFrame([w.model_dump()])
+    pred, resid, z, flag = _score(df)
+    LIVE.append({
+        "seq": payload.get("seq"), "ts": payload.get("ts"), "job_id": payload.get("job_id"), "material": w.material,
+        "spindle_speed_rpm": w.spindle_speed_rpm, "measured_kw": round(w.power_kw, 3),
+        "predicted_kw": round(float(pred[0]), 3), "excess_kw": round(float(resid[0]), 3),
+        "z_score": round(float(z[0]), 2), "flagged": bool(flag[0]),
+    })
+
+
+@app.get("/live")
+def live(limit: int = 120):
+    """Latest machine readings received from the IoT feed, already scored by the model."""
+    items = list(LIVE)[-limit:]
+    return {
+        "enabled": _listener is not None,
+        "connected": bool(_listener and _listener.connected),
+        "received_total": _listener.received if _listener else 0,
+        "last_error": _listener.last_error if _listener else None,
+        "flagged_in_view": sum(1 for i in items if i["flagged"]),
+        "items": items,
     }
